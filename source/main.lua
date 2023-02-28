@@ -30,33 +30,6 @@ end
 
 local function initialize()
 	math.randomseed(playdate.getSecondsSinceEpoch())
-	local playerImage = gfx.image.new("images/player")
-	local imagetable = playdate.graphics.imagetable.new('images/character-table-32-32.png')
-
-	playerAnimatedSprite = AnimatedSprite.new(imagetable)
-	playerAnimatedSprite:addState('p1IdleUp',1,1,{ tickStep = 10 })
-	playerAnimatedSprite:addState('p1RunUp',2,3,{ tickStep = 10 })
-	
-	playerAnimatedSprite:addState('p1IdleRight',10,10,{ tickStep = 10 })
-	playerAnimatedSprite:addState('p1RunRight',11,12,{ tickStep = 10 })
-	
-	playerAnimatedSprite:addState('p1IdleDown',19,19,{ tickStep = 10 }).asDefault()
-	playerAnimatedSprite:addState('p1RunDown',20,21,{ tickStep = 10 })
-	
-	playerAnimatedSprite:addState('p1IdleLeft',28,28,{ tickStep = 10 })
-	playerAnimatedSprite:addState('p1RunLeft',29,30,{ tickStep = 10 })
-
-	-- playerSprite = gfx.sprite.new(playerImage)
-	playerAnimatedSprite:moveTo(200, 120)
-	playerAnimatedSprite:setCollideRect(8, 8, 16, 16)
-	playerAnimatedSprite:playAnimation()
-
-
-	local coinImage = gfx.image.new("images/coin")
-    coinSprite = gfx.sprite.new(coinImage)
-	moveCoin()
-	coinSprite:setCollideRect(0, 0, coinSprite:getSize())
-	coinSprite:add()
 
 	local backgroundImage = gfx.image.new("images/background")
 	gfx.sprite.setBackgroundDrawingCallback(
@@ -66,6 +39,39 @@ local function initialize()
 			gfx.clearClipRect()
 		end
 	)
+
+	local coinImage = gfx.image.new("images/coin")
+    coinSprite = gfx.sprite.new(coinImage)
+	moveCoin()
+	coinSprite:setCollideRect(0, 0, coinSprite:getSize())
+	coinSprite:add()
+
+	local playerImage = gfx.image.new("images/player")
+	local imagetable = playdate.graphics.imagetable.new('images/character-table-32-32.png')
+
+	playerAnimatedSprite = AnimatedSprite.new(imagetable)
+
+	local playerShift = 5
+	local speed = 10
+
+	playerAnimatedSprite:addState('p1IdleUp',1+playerShift,1+playerShift,{ tickStep = 10 })
+	playerAnimatedSprite:addState('p1RunUp',1,3,{ tickStep = speed, yoyo = true, frames = {2+playerShift,1+playerShift,3+playerShift} })
+	
+	playerAnimatedSprite:addState('p1IdleRight',10+playerShift,10+playerShift,{ tickStep = 10 })
+	playerAnimatedSprite:addState('p1RunRight',1,3,{ tickStep = speed, yoyo = true, frames = {11+playerShift,10+playerShift,12+playerShift} })
+	
+	playerAnimatedSprite:addState('p1IdleDown',19+playerShift,19+playerShift,{ tickStep = 10 }).asDefault()
+	playerAnimatedSprite:addState('p1RunDown',1,3,{ tickStep = speed, yoyo = true, frames = {20+playerShift,19+playerShift,21+playerShift} })
+	
+	playerAnimatedSprite:addState('p1IdleLeft',28+playerShift,28+playerShift,{ tickStep = 10 })
+	playerAnimatedSprite:addState('p1RunLeft',1,3,{ tickStep = speed, yoyo = true, frames = {29+playerShift,28+playerShift,30+playerShift} })
+
+	-- playerSprite = gfx.sprite.new(playerImage)
+	playerAnimatedSprite:moveTo(200, 120)
+	-- playerAnimatedSprite:setCollideRect(8, 8, 16, 16)
+	playerAnimatedSprite:playAnimation()
+	playerAnimatedSprite:setZIndex(1)
+
 
 	imagetable = playdate.graphics.imagetable.new('images/Bomberman-Character.png')
 
