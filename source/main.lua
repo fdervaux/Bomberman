@@ -51,7 +51,9 @@ local function initialize()
 
 	playerAnimatedSprite = AnimatedSprite.new(imagetable)
 
-	local playerShift = 5
+	local p1 = 0
+	local p2 = 5
+	local playerShift = p2
 	local speed = 10
 
 	playerAnimatedSprite:addState('p1IdleUp',1+playerShift,1+playerShift,{ tickStep = 10 })
