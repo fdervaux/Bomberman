@@ -14,9 +14,12 @@ function Player:init(i, j, playerNumber)
     Player.super.init(self, playerImagetable, nil, nil)
 
     self.power = 3
+    self.isDead = false
 
     local playerShift = playerNumber == P1 and 0 or 5
     local speed = 10
+
+    self:addState("dead", 64 + playerShift, 67 + playerShift, {tickStep = speed, loop = false})
 
     self:addState('p1IdleUp', 1 + playerShift, 1 + playerShift, { tickStep = speed })
     self:addState('p1RunUp', 1, 3,
@@ -34,10 +37,15 @@ function Player:init(i, j, playerNumber)
     self:addState('p1RunLeft', 1, 3,
         { tickStep = speed, yoyo = true, frames = { 29 + playerShift, 28 + playerShift, 30 + playerShift } })
 
+
+    self.states.dead.onAnimationEndEvent = function (self)
+        self:remove()
+    end
+
     self:setCollideRect(10, 18, 12, 12)
     local playerCollisionGroup = playerNumber == P1 and collisionGroup.player1 or collisionGroup.player2
     self:setGroups({ playerCollisionGroup })
-    self:setCollidesWithGroups({ collisionGroup.block, collisionGroup.bomb, collisionGroup.bomb, collisionGroup.item, collisionGroup.p1, collisionGroup.p2})
+    self:setCollidesWithGroups({ collisionGroup.block, collisionGroup.bomb, collisionGroup.bomb, collisionGroup.item, collisionGroup.p1, collisionGroup.p2, collisionGroup.explosion})
 
     local x, y = getPositionAtCoordonate(i, j)
     self:moveTo(x, y - 8)
@@ -57,6 +65,11 @@ function Player:Move(playerDirection)
 end
 
 function Player:collisionResponse(other)
+    if other:isa(Explosion) then
+        self:kill()
+        return 'overlap'
+    end
+
     if hasGroup(other:getGroupMask(),collisionGroup.item) then 
         return 'overlap'
     end
@@ -72,12 +85,32 @@ function Player:collisionResponse(other)
 end
 
 function Player:dropBomb()
+    local sprites = playdate.graphics.sprite.querySpritesAtPoint(self.x, self.y + 8)
+
+    if sprites~=nil then
+        for i = 1, #sprites, 1 do
+            if sprites[i]:isa(Bomb) then
+                return
+            end
+        end
+    end
+
+
     local i, j = getCoordonateAtPosition(self.x, self.y + 8)
     world:addBomb(i, j, self.power)
 end
 
+function Player:kill()
+    self.isDead = true
+end
+
 function Player:update()
     Player.super.update(self)
+
+    if self.isDead then
+        self:changeState('dead',true)
+        return    
+    end
 
     local oldX, oldY, _, _ = self:getPosition()
 

@@ -5,7 +5,6 @@ import "games/utils.lua"
 import "games/explosion.lua"
 import "Plugins/AnimatedSprite/AnimatedSprite.lua"
 
-
 class('Bomb').extends(AnimatedSprite)
 
 function Bomb:init(i, j, power)
@@ -42,83 +41,116 @@ function Bomb:init(i, j, power)
     self:setCollidesWithGroups({ collisionGroup.p1, collisionGroup.p2 })
 
     self.states.Bomb.onAnimationEndEvent = function(self)
-        self:remove()
         self:explode()
     end
 end
 
+function Bomb:explodeDirection(i, j, di, dj)
+    --local case = world.worldTable[i + di][j + dj]
+
+    local sprites = playdate.graphics.sprite.querySpritesAtPoint(getPositionAtCoordonate(i + di, j + dj))
+
+    local needToCreateExplosion = true
+
+    if sprites ~= nil then
+        for index = 1, #sprites, 1 do
+            local sprite = sprites[index]
+
+            if sprite ~= nil then
+                if sprite:isa(BreakableBlock) then
+                    local caseUp = world.worldTable[i + di][j + dj - 1]
+                    local isShadow = false
+                    if caseUp:isa(BreakableBlock) or caseUp:isa(UnbreakableBlock) then
+                        isShadow = true
+                    end
+                    world.worldTable[i + di][j + dj] = Floor(i + di, j + dj, 0, isShadow)
+                    world.worldTable[i + di][j + dj]:add()
+
+                    local caseDown = world.worldTable[i + di][j + dj + 1]
+                    if caseDown:isa(Floor) then
+                        caseDown:remove()
+                        world.worldTable[i + di][j + dj + 1] = Floor(i + di, j + dj + 1, 1, false)
+                        world.worldTable[i + di][j + dj + 1]:add()
+                    end
+                    sprite:startBreak()
+                    return true
+                end
+
+                if sprite:isa(UnbreakableBlock) then
+                    return true
+                end
+
+                if sprite:isa(Bomb) then
+                    playdate.timer.performAfterDelay(50, sprite.explode, sprite)
+                    return true
+                end
+
+                if sprite:isa(Player) then
+                    playdate.timer.performAfterDelay(50, sprite.kill, sprite)
+                end
+
+                if sprite:isa(Explosion) then
+                    needToCreateExplosion = false
+                    local state = sprite.currentState
+                    sprite:stopAnimation()
+                    sprite:changeState(state, true)
+                end
+            end
+        end
+    end
+
+    if needToCreateExplosion then
+        if di == self.power then
+            explosion = Explosion(i + di, j + dj, 'explosionRight')
+        elseif di == -self.power then
+            explosion = Explosion(i + di, j + dj, 'explosionLeft')
+        elseif dj == -self.power then
+            explosion = Explosion(i + di, j + dj, 'explosionUp')
+        elseif dj == self.power then
+            explosion = Explosion(i + di, j + dj, 'explosionDown')
+        elseif di > 0 or di < 0 then
+            explosion = Explosion(i + di, j + dj, 'explosionHorizontal')
+        elseif dj > 0 or dj < 0 then
+            explosion = Explosion(i + di, j + dj, 'explosionVertical')
+        end
+    end
+
+    explosion:add()
+
+
+    return false
+end
+
 function Bomb:explode()
+    self:remove()
+
     local i, j = getCoordonateAtPosition(self.x, self.y)
     local explosion = Explosion(i, j, 'explosionMiddle')
     explosion:add()
 
     for index = 1, self.power, 1 do
-        local case = world.worldTable[i + index][j]
-
-        if (case:isa(BreakableBlock) or case:isa(UnbreakableBlock)) then
+        if self:explodeDirection(i, j, index, 0) then
             break
-        end
-
-        if index == self.power then
-            explosion = Explosion(i + index, j, 'explosionRight')
-            explosion:add()
-        else
-            explosion = Explosion(i + index, j, 'explosionHorizontal')
-            explosion:add()
         end
     end
 
-
     for index = 1, self.power, 1 do
-        local case = world.worldTable[i - index][j]
-
-        if (case:isa(BreakableBlock) or case:isa(UnbreakableBlock)) then
+        if self:explodeDirection(i, j, -index, 0) then
             break
         end
-
-        if index == self.power then
-            explosion = Explosion(i - index, j, 'explosionLeft')
-            explosion:add()
-        else
-            explosion = Explosion(i - index, j, 'explosionHorizontal')
-            explosion:add()
-        end
-    end    
+    end
 
     for index = 1, self.power, 1 do
-        local case = world.worldTable[i][j + index]
-
-        if (case:isa(BreakableBlock) or case:isa(UnbreakableBlock)) then
+        if self:explodeDirection(i, j, 0, -index) then
             break
         end
-
-        if index == self.power then
-            explosion = Explosion(i, j+ index, 'explosionDown')
-            explosion:add()
-        else
-            explosion = Explosion(i, j+ index, 'explosionVertical')
-            explosion:add()
-        end
-    end    
+    end
 
     for index = 1, self.power, 1 do
-        local case = world.worldTable[i][j - index]
-
-        if (case:isa(BreakableBlock) or case:isa(UnbreakableBlock)) then
+        if self:explodeDirection(i, j, 0, index) then
             break
         end
-
-        if index == self.power then
-            explosion = Explosion(i, j - index, 'explosionUp')
-            explosion:add()
-        else
-            explosion = Explosion(i, j - index, 'explosionVertical')
-            explosion:add()
-        end
-    end 
-
-    
-    
+    end
 end
 
 function Bomb:update()

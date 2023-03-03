@@ -63,7 +63,7 @@ function World:init()
         end
     end
 
-    local nbBloc = 30
+    local nbBloc = 100
     while nbBloc ~= 0 do
         local elementsIndex = math.random(#emptySpace)
         local coord = table.remove(emptySpace,elementsIndex)
