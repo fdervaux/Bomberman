@@ -2,20 +2,23 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 import "games/unbreakableBlock.lua"
 import "games/utils.lua"
 import "games/floor.lua"
 import "games/Bomb.lua"
 import "games/breakableBlock.lua"
+import "libraries/noble/Noble"
 
 local gfx <const> = playdate.graphics
+
+class('LevelScene').extends(NobleScene)
 
 class('World').extends()
 
 function World:addBomb(i,j, power)
     local bomb = Bomb(i,j,power)
-    bomb:add()
+    -- bomb:add()
 end
 
 
@@ -55,7 +58,7 @@ function World:init()
     for i = 1, 25, 1 do
         for j = 1, 15, 1 do
             if self.worldTable[i][j] ~= nil then
-                self.worldTable[i][j]:add()
+                -- self.worldTable[i][j]:add()
             else
                 emptySpace[emptySpaceIndex] = {i,j}
                 emptySpaceIndex += 1
@@ -70,7 +73,7 @@ function World:init()
         local i = coord[1]
         local j = coord[2]
         self.worldTable[i][j] = BreakableBlock(i,j,1)
-        self.worldTable[i][j]:add()
+        -- self.worldTable[i][j]:add()
         nbBloc -= 1
     end
 
@@ -88,8 +91,17 @@ function World:init()
         end
         
         self.worldTable[i][j] = Floor(i,j,1,shadow)
-        self.worldTable[i][j]:add()
+        -- self.worldTable[i][j]:add()
     end
-end
 
-world = World()
+
+    local sound = playdate.sound.sampleplayer
+    local backgroundMusic = sound.new('sounds/SBomb1-Battle.wav')
+    local stageIntro = sound.new('sounds/Stage Intro.wav')
+
+
+    backgroundMusic:setVolume(0.3)
+    backgroundMusic:play(0,1)
+    stageIntro:play(1,1)
+
+end

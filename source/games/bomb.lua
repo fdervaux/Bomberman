@@ -3,12 +3,16 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "games/utils.lua"
 import "games/explosion.lua"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "games/shaker.lua"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 
 class('Bomb').extends(AnimatedSprite)
 
 function Bomb:init(i, j, power)
     Bomb.super.init(self, envImagetable)
+
+    local sound = playdate.sound.sampleplayer
+    self.bombExplode = sound.new('sounds/Bomb Explodes.wav')
 
     local animationSpeed = 20
 
@@ -64,13 +68,13 @@ function Bomb:explodeDirection(i, j, di, dj)
                         isShadow = true
                     end
                     world.worldTable[i + di][j + dj] = Floor(i + di, j + dj, 0, isShadow)
-                    world.worldTable[i + di][j + dj]:add()
+                    -- world.worldTable[i + di][j + dj]:add()
 
                     local caseDown = world.worldTable[i + di][j + dj + 1]
                     if caseDown:isa(Floor) then
                         caseDown:remove()
                         world.worldTable[i + di][j + dj + 1] = Floor(i + di, j + dj + 1, 1, false)
-                        world.worldTable[i + di][j + dj + 1]:add()
+                        -- world.worldTable[i + di][j + dj + 1]:add()
                     end
                     sprite:startBreak()
                     return true
@@ -115,7 +119,7 @@ function Bomb:explodeDirection(i, j, di, dj)
         end
     end
 
-    explosion:add()
+    -- explosion:add()
 
 
     return false
@@ -124,9 +128,13 @@ end
 function Bomb:explode()
     self:remove()
 
+    self.bombExplode:play(1, 1)
+    local screenShaker = ScreenShaker()
+    screenShaker:start(0.8, 3, playdate.easingFunctions.inOutCubic)
+
     local i, j = getCoordonateAtPosition(self.x, self.y)
     local explosion = Explosion(i, j, 'explosionMiddle')
-    explosion:add()
+    -- explosion:add()
 
     for index = 1, self.power, 1 do
         if self:explodeDirection(i, j, index, 0) then

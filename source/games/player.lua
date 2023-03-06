@@ -2,7 +2,7 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "games/utils.lua"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 import "games/world.lua"
 
 P1 = 0
@@ -12,6 +12,13 @@ class('Player').extends(AnimatedSprite)
 
 function Player:init(i, j, playerNumber)
     Player.super.init(self, playerImagetable, nil, nil)
+
+
+    local sound = playdate.sound.sampleplayer
+    self.walk1Sound = sound.new('sounds/Walking 1.wav')
+    self.walk2Sound = sound.new('sounds/Walking 2.wav')
+    self.bombDrop = sound.new('sounds/Place Bomb.wav')
+    
 
     self.power = 3
     self.isDead = false
@@ -98,6 +105,7 @@ function Player:dropBomb()
 
     local i, j = getCoordonateAtPosition(self.x, self.y + 8)
     world:addBomb(i, j, self.power)
+    self.bombDrop:play(1,1)
 end
 
 function Player:kill()
@@ -117,6 +125,13 @@ function Player:update()
     local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x, self.y + self.velocity.y)
 
     self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY)
+
+    if self.velocity.y ~= 0 or self.velocity.x ~= 0 then
+        if not self.walk1Sound:isPlaying() then
+            self.walk1Sound:play(1,1)
+        end
+    end 
+
 
     if self.velocity.y < 0 then
         self:changeState('p1RunUp', true)
@@ -148,5 +163,4 @@ function dump(o)
     end
 end
 
-player1 = Player(2, 2, P1)
-player2 = Player(24, 14, p2)
+

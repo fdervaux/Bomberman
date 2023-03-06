@@ -4,11 +4,15 @@ import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "games/utils.lua"
 
-class('StaticSprite').extends(playdate.graphics.sprite)
+class('StaticSprite').extends(NobleSprite)
 
 
 
 function StaticSprite:init(i, j, imageIndex, zIndex, hasCollider)
+    StaticSprite.super.init(self)
+
+    self:add()
+
     local x, y = getPositionAtCoordonate(i, j)
     self:moveTo(x, y)
     local image = envImagetable:getImage(imageIndex)

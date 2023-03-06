@@ -1,7 +1,7 @@
 import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 import "games/utils.lua"
 
 class('BreakableBlock').extends(AnimatedSprite)

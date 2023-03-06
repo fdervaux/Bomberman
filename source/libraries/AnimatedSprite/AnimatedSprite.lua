@@ -10,10 +10,12 @@
 
 import 'CoreLibs/object'
 import 'CoreLibs/sprites'
+import 'libraries/noble/Noble'
+
 local gfx <const> = playdate.graphics
 local function emptyFunc()end
 
-class("AnimatedSprite").extends(gfx.sprite)
+class("AnimatedSprite").extends(NobleSprite)
 
 ---@param imagetable table
 ---@param states? table If provided, calls `setStates(states)` after initialisation

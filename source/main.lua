@@ -2,11 +2,20 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "libraries/noble/Noble"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 import "games/world.lua"
 import "games/player.lua"
+import "games/shaker.lua"
+
 
 local gfx <const> = playdate.graphics
+
+Noble.new(LevelScene)
+
+world = World()
+player1 = Player(2, 2, P1)
+player2 = Player(24, 14, p2)
 
 function playdate.AButtonDown()
 	print("dropBomb")

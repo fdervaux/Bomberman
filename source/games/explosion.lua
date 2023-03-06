@@ -3,7 +3,7 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "games/utils.lua"
 import "games/bomb.lua"
-import "Plugins/AnimatedSprite/AnimatedSprite.lua"
+import "libraries/animatedSprite/AnimatedSprite.lua"
 
 
 class('Explosion').extends(AnimatedSprite)
