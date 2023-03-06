@@ -4,20 +4,28 @@ import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "libraries/noble/Noble"
 import "libraries/animatedSprite/AnimatedSprite.lua"
-import "games/world.lua"
+import "games/worldScene.lua"
+import "games/MenuScene.lua"
 import "games/player.lua"
 import "games/shaker.lua"
 
 
-local gfx <const> = playdate.graphics
 
-Noble.new(LevelScene)
+Noble.Settings.setup({
+	Difficulty = "Medium"
+})
 
-world = World()
-player1 = Player(2, 2, P1)
-player2 = Player(24, 14, p2)
+Noble.GameData.setup({
+	Score = 0
+})
 
-function playdate.AButtonDown()
+Noble.showFPS = true
+
+Noble.new(MenuScene)
+
+
+
+--[[function playdate.AButtonDown()
 	print("dropBomb")
 	player1:dropBomb()
 	-- player2:dropBomb()
@@ -39,9 +47,9 @@ function playdate.update()
 		playerdirection.x = -1
 	end
 
-	player1:Move(playerdirection)
+	--player1:Move(playerdirection)
 	-- player2:Move(playerdirection)
 
 	playdate.graphics.sprite.update()
 	playdate.timer.updateTimers()
-end
+end]]--

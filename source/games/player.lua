@@ -3,7 +3,7 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "games/utils.lua"
 import "libraries/animatedSprite/AnimatedSprite.lua"
-import "games/world.lua"
+-- import "games/world.lua"
 
 P1 = 0
 P2 = 1
@@ -19,8 +19,9 @@ function Player:init(i, j, playerNumber)
     self.walk2Sound = sound.new('sounds/Walking 2.wav')
     self.bombDrop = sound.new('sounds/Place Bomb.wav')
     
-
-    self.power = 3
+    self.nbBombMax = 1
+    self.bombs = {}
+    self.power = 1
     self.isDead = false
 
     local playerShift = playerNumber == P1 and 0 or 5
@@ -61,23 +62,40 @@ function Player:init(i, j, playerNumber)
 
     self.lastDirection = 'Down'
     self.velocity = playdate.geometry.vector2D.new(0, 0)
-    self.maxSpeed = 2
+    self.maxSpeed = 1
 end
 
 function Player:Move(playerDirection)
     local velocity = playerDirection
     velocity:normalize()
-    velocity:scale(self.maxSpeed)
+    -- velocity:scale(self.maxSpeed)
     self.velocity = velocity
 end
 
 function Player:collisionResponse(other)
-    if other:isa(Explosion) then
+    if hasGroup(other:getGroupMask(),collisionGroup.explosion) then
         self:kill()
         return 'overlap'
     end
-
     if hasGroup(other:getGroupMask(),collisionGroup.item) then 
+        other:take()
+
+        if other:isa(BombItem) then
+            self.nbBombMax += 1
+        end
+
+        if other:isa(FlameItem) then
+            self.power += 1
+        end
+        
+        if other:isa(MegaFlameItem) then
+            self.power += 10
+        end
+
+        if other:isa(SpeedItem) then
+            self.maxSpeed += 0.5
+        end
+
         return 'overlap'
     end
     if hasGroup(other:getGroupMask(),collisionGroup.ignoreP1) and self == player1 then 
@@ -102,9 +120,15 @@ function Player:dropBomb()
         end
     end
 
+    if #self.bombs >= self.nbBombMax then
+        return
+    end
 
     local i, j = getCoordonateAtPosition(self.x, self.y + 8)
-    world:addBomb(i, j, self.power)
+
+    self.bombs[#self.bombs+1] = Bomb(i,j, self.power)
+
+    -- world:addBomb(i, j, self.power)
     self.bombDrop:play(1,1)
 end
 
@@ -122,7 +146,7 @@ function Player:update()
 
     local oldX, oldY, _, _ = self:getPosition()
 
-    local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x, self.y + self.velocity.y)
+    local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed, self.y + self.velocity.y * self.maxSpeed)
 
     self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY)
 
@@ -147,6 +171,13 @@ function Player:update()
         self.lastDirection = "Left"
     else
         self:changeState('p1Idle' .. self.lastDirection, true)
+    end
+
+    self.velocity.x = 0
+    self.velocity.y = 0
+
+    if #self.bombs > 0 and self.bombs[1].isExploded then
+        table.remove(self.bombs,1)
     end
 end
 

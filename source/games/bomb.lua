@@ -17,6 +17,7 @@ function Bomb:init(i, j, power)
     local animationSpeed = 20
 
     self.power = power
+    self.isExploded = false
 
     self:addState('Bomb', 29, 31,
         { tickStep = animationSpeed, yoyo = true, loop = 4 }).asDefault()
@@ -61,6 +62,13 @@ function Bomb:explodeDirection(i, j, di, dj)
             local sprite = sprites[index]
 
             if sprite ~= nil then
+
+                if sprite:isa(Item) then
+                    sprite:remove()
+                    ItemExplode(i+di,j+dj,3)
+                    return true
+                end
+
                 if sprite:isa(BreakableBlock) then
                     local caseUp = world.worldTable[i + di][j + dj - 1]
                     local isShadow = false
@@ -127,6 +135,8 @@ end
 
 function Bomb:explode()
     self:remove()
+
+    self.isExploded = true
 
     self.bombExplode:play(1, 1)
     local screenShaker = ScreenShaker()
