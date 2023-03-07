@@ -18,11 +18,14 @@ function Player:init(i, j, playerNumber)
     self.walk1Sound = sound.new('sounds/Walking 1.wav')
     self.walk2Sound = sound.new('sounds/Walking 2.wav')
     self.bombDrop = sound.new('sounds/Place Bomb.wav')
+    self.shiftY = 0
+    self.shiftX = 0
     
     self.nbBombMax = 1
     self.bombs = {}
     self.power = 1
     self.isDead = false
+    self.maxSpeed = 2
 
     local playerShift = playerNumber == P1 and 0 or 5
     local speed = 10
@@ -62,7 +65,7 @@ function Player:init(i, j, playerNumber)
 
     self.lastDirection = 'Down'
     self.velocity = playdate.geometry.vector2D.new(0, 0)
-    self.maxSpeed = 1
+    
 end
 
 function Player:Move(playerDirection)
@@ -106,6 +109,30 @@ function Player:collisionResponse(other)
         return 'overlap'
     end
 
+    if(hasGroup(other:getGroupMask(), collisionGroup.block)) then
+
+        self.shiftY = 0
+        self.shiftX = 0
+        if self.velocity.x > 0 or self.velocity.x < 0 then
+            
+            if self.y + 8 > other.y then
+                self.shiftY = other.y - self.y - 8 + 14
+            else
+                self.shiftY = other.y - self.y - 8 - 14
+            end
+        end
+
+        if self.velocity.y > 0 or self.velocity.y < 0 then
+            
+            if self.x > other.x then
+                self.shiftX = other.x - self.x + 14
+            else
+                self.shiftX = other.x - self.x - 14
+            end
+        end
+    end
+
+
     return 'slide'
 end
 
@@ -127,8 +154,6 @@ function Player:dropBomb()
     local i, j = getCoordonateAtPosition(self.x, self.y + 8)
 
     self.bombs[#self.bombs+1] = Bomb(i,j, self.power)
-
-    -- world:addBomb(i, j, self.power)
     self.bombDrop:play(1,1)
 end
 
@@ -146,7 +171,25 @@ function Player:update()
 
     local oldX, oldY, _, _ = self:getPosition()
 
-    local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed, self.y + self.velocity.y * self.maxSpeed)
+    local x, y, collisions, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed, self.y + self.velocity.y * self.maxSpeed)
+
+    local tolerance = 8
+
+    for i = 1, #collisions, 1 do
+        local other = collisions[i].other
+        if not hasGroup(other:getGroupMask(), collisionGroup.ignoreP1) and other:isa(Bomb) then
+            print("push")
+            collisions[i].other:push( - collisions[i].normal) 
+        end
+    end
+
+
+    if self.shiftY < tolerance and self.shiftY > -tolerance then
+        self.y += self.shiftY
+    end
+    if self.shiftX < tolerance and self.shiftX > -tolerance then
+        self.x += self.shiftX
+    end
 
     self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY)
 
@@ -175,6 +218,8 @@ function Player:update()
 
     self.velocity.x = 0
     self.velocity.y = 0
+    self.shiftY = 0
+    self.shiftX = 0
 
     if #self.bombs > 0 and self.bombs[1].isExploded then
         table.remove(self.bombs,1)

@@ -299,7 +299,6 @@ end
 ---@param name string New state name
 ---@param play? boolean If new animation should be played right away. Default: `True`
 function AnimatedSprite:changeState(name, play)
-	-- print('name ' .. name)
 
 	if (name == self.currentState) then
 		return

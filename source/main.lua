@@ -10,16 +10,7 @@ import "games/player.lua"
 import "games/shaker.lua"
 
 
-
-Noble.Settings.setup({
-	Difficulty = "Medium"
-})
-
-Noble.GameData.setup({
-	Score = 0
-})
-
-Noble.showFPS = true
+-- Noble.showFPS = true
 
 Noble.new(MenuScene)
 

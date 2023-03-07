@@ -49,6 +49,11 @@ function WorldScene:enter()
     player1 = Player(2, 2, P1)
     player2 = Player(24, 14, p2)
 
+    
+    playdate.graphics.setBackgroundColor(playdate.graphics.kColorBlack)
+        
+
+
     math.randomseed(playdate.getSecondsSinceEpoch())
     self.worldTable = {}
     self.objectInWorld = {}
@@ -92,7 +97,7 @@ function WorldScene:enter()
 
 
     local items = {}
-    for i=1,30,1 do
+    for i=1,10,1 do
         items[#items+1] = "FlameItem"
         items[#items+1] = "BombItem"
         items[#items+1] = "SpeedItem"
@@ -100,7 +105,7 @@ function WorldScene:enter()
     items[#items+1] = "MegaFlameItem"
 
     local index = 1
-    local nbBloc = 100
+    local nbBloc = 150
 
     while nbBloc ~= 0 do
         local elementsIndex = math.random(#emptySpace)
@@ -109,8 +114,8 @@ function WorldScene:enter()
         local j = coord[2]
 
         if index <= #items then
-            self.worldTable[i][j] = BreakableBlock(i,j,1,items[i])
-            print(items[i])
+            self.worldTable[i][j] = BreakableBlock(i,j,1,items[index])
+            print(items[index])
             index += 1
         else
             self.worldTable[i][j] = BreakableBlock(i,j,1)
@@ -165,4 +170,8 @@ function WorldScene:exit()
 
     local menu = playdate.getSystemMenu()
     menu:removeMenuItem(self.menuItem)
+end
+
+function WorldScene:update()
+    
 end

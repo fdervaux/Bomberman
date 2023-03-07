@@ -122,7 +122,7 @@ function Noble.Input.getCrankIndicatorStatus()
 end
 
 -- Noble Engine defines extra "buttonHold" methods that run every frame that a button is held down, but to implement them, we need to do some magic.
-local buttonHoldBufferAmount = 3 -- This is how many frames to wait before the engine determines that a button is being held down. Using !buttonJustPressed() provides only 1 frame, which isn't enough.
+local buttonHoldBufferAmount = 1 -- This is how many frames to wait before the engine determines that a button is being held down. Using !buttonJustPressed() provides only 1 frame, which isn't enough.
 
 local AButtonHoldBufferCount = 0
 local BButtonHoldBufferCount = 0

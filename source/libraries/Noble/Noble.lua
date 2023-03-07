@@ -88,8 +88,8 @@ function Noble.new(StartingScene, __transitionDuration, __transitionType, __enab
 	end
 
 	-- Screen drawing: see the Playdate SDK for details on these methods.
-	Graphics.sprite.setAlwaysRedraw(true)
-	Graphics.sprite.setBackgroundDrawingCallback(
+	--Graphics.sprite.setAlwaysRedraw(true)
+	--[[Graphics.sprite.setBackgroundDrawingCallback(
 		function (x, y, width, height)
 			if (currentScene ~= nil) then
 				 -- Each scene has its own method for this. We only want to run one at a time.
@@ -100,7 +100,7 @@ function Noble.new(StartingScene, __transitionDuration, __transitionType, __enab
 	-- Override Playdate methods we've used already, and don't want to be used again, with Bonks!
 	Graphics.sprite.setBackgroundDrawingCallback = function(callback)
 		error("BONK: Don't call Graphics.sprite.setBackgroundDrawingCallback() directly. Put background drawing code in your scenes' drawBackground() methods instead.")
-	end
+	end]]--
 
 	local transitionType = Noble.TransitionType.CUT
 	if (__transitionDuration ~= nil) then

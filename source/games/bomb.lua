@@ -8,19 +8,35 @@ import "libraries/animatedSprite/AnimatedSprite.lua"
 
 class('Bomb').extends(AnimatedSprite)
 
+
+function Bomb:push(direction)
+    self.velocity = direction;
+end
+
 function Bomb:init(i, j, power)
     Bomb.super.init(self, envImagetable)
+
+    self.maxSpeed = 4;
+    self.velocity = playdate.geometry.vector2D.new(0, 0)
 
     local sound = playdate.sound.sampleplayer
     self.bombExplode = sound.new('sounds/Bomb Explodes.wav')
 
-    local animationSpeed = 20
+    local animationSpeed = 10
 
     self.power = power
     self.isExploded = false
+    self.canPush = false
 
-    self:addState('Bomb', 29, 31,
-        { tickStep = animationSpeed, yoyo = true, loop = 4 }).asDefault()
+    self:addState('BombStart', 1, 3,
+        { tickStep = animationSpeed, yoyo = true, loop = 4, nextAnimation = 'Bomb', frames = { 29, 30, 31 } }).asDefault()
+    self:addState('Bomb', 1, 10,
+        {
+            tickStep = animationSpeed / 2,
+            yoyo = true,
+            loop = false,
+            frames = { 30, 31, 30, 29, 30, 31, 30, 29, 30, 31 }
+        })
 
     local x, y = getPositionAtCoordonate(i, j)
     self:moveTo(x, y)
@@ -43,7 +59,8 @@ function Bomb:init(i, j, power)
     end
     bombCollisionGroups[#bombCollisionGroups + 1] = collisionGroup.bomb
     self:setGroups(bombCollisionGroups)
-    self:setCollidesWithGroups({ collisionGroup.p1, collisionGroup.p2 })
+    self:setCollidesWithGroups({ collisionGroup.p1, collisionGroup.p2, collisionGroup.bomb, collisionGroup.item,
+        collisionGroup.block })
 
     self.states.Bomb.onAnimationEndEvent = function(self)
         self:explode()
@@ -62,10 +79,9 @@ function Bomb:explodeDirection(i, j, di, dj)
             local sprite = sprites[index]
 
             if sprite ~= nil then
-
                 if sprite:isa(Item) then
                     sprite:remove()
-                    ItemExplode(i+di,j+dj,3)
+                    ItemExplode(i + di, j + dj, 3)
                     return true
                 end
 
@@ -76,13 +92,11 @@ function Bomb:explodeDirection(i, j, di, dj)
                         isShadow = true
                     end
                     world.worldTable[i + di][j + dj] = Floor(i + di, j + dj, 0, isShadow)
-                    -- world.worldTable[i + di][j + dj]:add()
 
                     local caseDown = world.worldTable[i + di][j + dj + 1]
                     if caseDown:isa(Floor) then
                         caseDown:remove()
                         world.worldTable[i + di][j + dj + 1] = Floor(i + di, j + dj + 1, 1, false)
-                        -- world.worldTable[i + di][j + dj + 1]:add()
                     end
                     sprite:startBreak()
                     return true
@@ -126,9 +140,6 @@ function Bomb:explodeDirection(i, j, di, dj)
             explosion = Explosion(i + di, j + dj, 'explosionVertical')
         end
     end
-
-    -- explosion:add()
-
 
     return false
 end
@@ -203,4 +214,11 @@ function Bomb:update()
             self:setGroupMask(self:getGroupMask() - bit(collisionGroup.ignoreP2))
         end
     end
+
+    local oldX, oldY, _, _ = self:getPosition()
+    print(self.velocity)
+    local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed,
+    self.y + self.velocity.y * self.maxSpeed)
+    self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY) / self.maxSpeed
+    print (self.velocity)
 end
