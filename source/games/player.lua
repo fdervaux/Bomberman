@@ -1,10 +1,3 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "games/utils.lua"
-import "libraries/animatedSprite/AnimatedSprite.lua"
--- import "games/world.lua"
-
 P1 = 0
 P2 = 1
 
@@ -26,6 +19,7 @@ function Player:init(i, j, playerNumber)
     self.power = 1
     self.isDead = false
     self.maxSpeed = 2
+    self.canKick = false
 
     local playerShift = playerNumber == P1 and 0 or 5
     local speed = 10
@@ -51,6 +45,11 @@ function Player:init(i, j, playerNumber)
 
     self.states.dead.onAnimationEndEvent = function (self)
         self:remove()
+        playdate.timer.performAfterDelay(500, function ()
+            print(self)
+            print(self == player1)
+            world:endGame(self ~= player1)
+        end)
     end
 
     self:setCollideRect(10, 18, 12, 12)
@@ -97,6 +96,10 @@ function Player:collisionResponse(other)
 
         if other:isa(SpeedItem) then
             self.maxSpeed += 0.5
+        end
+
+        if other:isa(KickItem) then
+            self.canKick = true
         end
 
         return 'overlap'
@@ -175,13 +178,16 @@ function Player:update()
 
     local tolerance = 8
 
-    for i = 1, #collisions, 1 do
-        local other = collisions[i].other
-        if not hasGroup(other:getGroupMask(), collisionGroup.ignoreP1) and other:isa(Bomb) then
-            print("push")
-            collisions[i].other:push( - collisions[i].normal) 
+    if self.canKick then
+        for i = 1, #collisions, 1 do
+            local other = collisions[i].other
+            if not hasGroup(other:getGroupMask(), collisionGroup.ignoreP1) and other:isa(Bomb) then
+                
+                collisions[i].other:push( - collisions[i].normal) 
+            end
         end
     end
+    
 
 
     if self.shiftY < tolerance and self.shiftY > -tolerance then

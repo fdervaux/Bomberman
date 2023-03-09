@@ -1,11 +1,3 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "games/utils.lua"
-import "games/bomb.lua"
-import "libraries/animatedSprite/AnimatedSprite.lua"
-
-
 class('Explosion').extends(AnimatedSprite)
 
 function Explosion:init(i, j, explosionState)

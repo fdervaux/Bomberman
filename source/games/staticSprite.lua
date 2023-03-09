@@ -1,12 +1,4 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "CoreLibs/timer"
-import "games/utils.lua"
-
 class('StaticSprite').extends(NobleSprite)
-
-
 
 function StaticSprite:init(i, j, imageIndex, zIndex, hasCollider)
     StaticSprite.super.init(self)

@@ -1,9 +1,3 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "libraries/animatedSprite/AnimatedSprite.lua"
-import "games/utils.lua"
-
 class('ItemExplode').extends(AnimatedSprite)
 
 function ItemExplode:init(i, j, zIndex)
@@ -62,6 +56,12 @@ function SpeedItem:init(i, j)
     SpeedItem.super.init(self, i, j, 37)
 end
 
+class('KickItem').extends('Item')
+
+function KickItem:init(i, j)
+    KickItem.super.init(self, i, j, 42)
+end
+
 class('BreakableBlock').extends(AnimatedSprite)
 
 function BreakableBlock:init(i, j, zIndex, item)
@@ -97,6 +97,10 @@ function BreakableBlock:init(i, j, zIndex, item)
         if self.item == "MegaFlameItem" then
             MegaFlameItem(i, j)
         end
+
+        if self.item == "KickItem" then
+            KickItem(i, j)
+        end
     end
 
     self:playAnimation()
@@ -107,5 +111,5 @@ function BreakableBlock:startBreak()
 end
 
 function BreakableBlock:update()
-   BreakableBlock.super.update(self)
+    BreakableBlock.super.update(self)
 end

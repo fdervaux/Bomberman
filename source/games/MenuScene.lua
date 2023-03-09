@@ -9,7 +9,7 @@ local sequence
 function MenuScene:init()
 	MenuScene.super.init(self)
 
-	menu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorWhite, 4,6,0, Noble.Text.FONT_SMALL)
+	menu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorWhite, 4, 6, 0, Noble.Text.FONT_SMALL)
 
 	menu:addItem('Ⓐ Start Game', function() Noble.transition(WorldScene, 0.5, Noble.TransitionType.SLIDE_OFF_LEFT) end)
 
@@ -24,25 +24,25 @@ function MenuScene:init()
 			menu:click()
 		end
 	}
-
 end
 
 function MenuScene:enter()
 	MenuScene.super.enter(self)
 
+	playdate.graphics.setBackgroundColor(playdate.graphics.kColorWhite)
+
 	sequence = Sequence.new():from(0):to(180, 1, Ease.outBounce)
 	sequence:start();
 
 	local sound = playdate.sound.sampleplayer
-    self.backgroundMusic = sound.new('sounds/Title Screen.wav')
-    self.backgroundMusic:setVolume(0.6)
-    self.backgroundMusic:play(0,1)
+	self.backgroundMusic = sound.new('sounds/Title Screen.wav')
+	self.backgroundMusic:setVolume(0.6)
+	self.backgroundMusic:play(0, 1)
 
 	self.background = NobleSprite("images/background2")
-	
-	self.background:add()
-	self.background:moveTo(200,120)
 
+	self.background:add()
+	self.background:moveTo(200, 120)
 end
 
 function MenuScene:start()

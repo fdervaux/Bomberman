@@ -1,20 +1,16 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-
 playerImagetable = playdate.graphics.imagetable.new('images/character-table-32-32.png')
 envImagetable = playdate.graphics.imagetable.new('images/env-table-16-16.png')
 
 function bit(p)
-    return 2 ^ (p - 1)  -- 1-based indexing
+    return 2 ^ (p - 1) -- 1-based indexing
 end
 
 function hasbit(x, p)
-    return x % (p + p) >= p       
+    return x % (p + p) >= p
 end
 
 function hasGroup(mask, group)
-    return hasbit(mask,bit(group))
+    return hasbit(mask, bit(group))
 end
 
 -- collision groups
@@ -35,6 +31,5 @@ function getPositionAtCoordonate(i, j)
 end
 
 function getCoordonateAtPosition(x, y)
-    return  math.floor((x - 8) / 16 + 1 + 0.5), math.floor((y - 8) / 16 + 1 + 0.5)
+    return math.floor((x - 8) / 16 + 1 + 0.5), math.floor((y - 8) / 16 + 1 + 0.5)
 end
-

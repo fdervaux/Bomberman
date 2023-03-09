@@ -1,9 +1,3 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "CoreLibs/animator"
-
-
 class('ScreenShaker').extends(NobleSprite)
 
 function ScreenShaker:init()
@@ -18,7 +12,7 @@ end
 function ScreenShaker:update()
     if self.animator:ended() then
         self:remove()
-        playdate.display.setOffset(0,0)
+        playdate.display.setOffset(0, 0)
         return
     end
     local factor = self.animator:currentValue()

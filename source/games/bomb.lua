@@ -1,13 +1,4 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "games/utils.lua"
-import "games/explosion.lua"
-import "games/shaker.lua"
-import "libraries/animatedSprite/AnimatedSprite.lua"
-
 class('Bomb').extends(AnimatedSprite)
-
 
 function Bomb:push(direction)
     self.velocity = direction;
@@ -68,7 +59,6 @@ function Bomb:init(i, j, power)
 end
 
 function Bomb:explodeDirection(i, j, di, dj)
-    --local case = world.worldTable[i + di][j + dj]
 
     local sprites = playdate.graphics.sprite.querySpritesAtPoint(getPositionAtCoordonate(i + di, j + dj))
 
@@ -216,9 +206,7 @@ function Bomb:update()
     end
 
     local oldX, oldY, _, _ = self:getPosition()
-    print(self.velocity)
     local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed,
-    self.y + self.velocity.y * self.maxSpeed)
+        self.y + self.velocity.y * self.maxSpeed)
     self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY) / self.maxSpeed
-    print (self.velocity)
 end

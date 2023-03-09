@@ -1,8 +1,3 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "games/staticSprite.lua"
-
 class('Floor').extends(StaticSprite)
 
 function Floor:init(x, y, zIndex, shadow)
