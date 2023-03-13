@@ -1,7 +1,11 @@
-class('Explosion').extends(AnimatedSprite)
+class('Explosion').extends(ObjectMap)
+
+function Explosion.new(i, j, explosionState)
+    return Explosion(i, j, explosionState)
+end
 
 function Explosion:init(i, j, explosionState)
-    Explosion.super.init(self, envImagetable)
+    Explosion.super.init(self, i, j, 4, true)
 
     local animationSpeed = 5
 
@@ -27,12 +31,8 @@ function Explosion:init(i, j, explosionState)
     end
 
     self:changeState(explosionState, true)
-    local x, y = getPositionAtCoordonate(i, j)
-    self:moveTo(x, y)
-    self:setZIndex(3)
     self:playAnimation()
     self:setGroups({ collisionGroup.explosion })
     self:setCollidesWithGroups({ collisionGroup.bomb, collisionGroup.p1, collisionGroup.p2, collisionGroup.item,
         collisionGroup.block })
-    self:setCollideRect(0, 0, 16, 16)
 end

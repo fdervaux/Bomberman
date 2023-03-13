@@ -10,7 +10,7 @@ function EndScene:init()
 	EndScene.super.init(self)
 
 	menu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorWhite, 4, 20, 0, Noble.Text.FONT_SMALL)
-	menu:addItem('Start Game', function() Noble.transition(WorldScene, 0.5, Noble.TransitionType.SLIDE_OFF_RIGHT) end)
+	menu:addItem('Start Game', function() Noble.transition(World, 0.5, Noble.TransitionType.SLIDE_OFF_RIGHT) end)
 	menu:addItem('Title screen', function() Noble.transition(MenuScene, 0.5, Noble.TransitionType.SLIDE_OFF_RIGHT) end)
 
 	EndScene.inputHandler = {
@@ -38,8 +38,6 @@ function EndScene:enter()
 	self.backgroundMusic = sound.new('sounds/Title Screen.wav')
 	self.backgroundMusic:setVolume(0.6)
 	self.backgroundMusic:play(0, 1)
-
-	print(gameGlobalVariables.isWinning)
 
 	if gameGlobalVariables.isWinning then
 		self.background = NobleSprite("images/You Win")

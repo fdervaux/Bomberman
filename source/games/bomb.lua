@@ -1,11 +1,11 @@
-class('Bomb').extends(AnimatedSprite)
+class('Bomb').extends(ObjectMap)
 
-function Bomb:push(direction)
-    self.velocity = direction;
+function Bomb.new(i, j, power)
+    return Bomb(i, j, power)
 end
 
 function Bomb:init(i, j, power)
-    Bomb.super.init(self, envImagetable)
+    Bomb.super.init(self, i, j, 3, true)
 
     self.maxSpeed = 4;
     self.velocity = playdate.geometry.vector2D.new(0, 0)
@@ -19,26 +19,27 @@ function Bomb:init(i, j, power)
     self.isExploded = false
     self.canPush = false
 
-    self:addState('BombStart', 1, 3,
-        { tickStep = animationSpeed, yoyo = true, loop = 4, nextAnimation = 'Bomb', frames = { 29, 30, 31 } }).asDefault()
-    self:addState('Bomb', 1, 10,
-        {
-            tickStep = animationSpeed / 2,
-            yoyo = true,
-            loop = false,
-            frames = { 30, 31, 30, 29, 30, 31, 30, 29, 30, 31 }
-        })
+    self:addState('BombStart', 1, 3, {
+        tickStep = animationSpeed,
+        yoyo = true,
+        loop = 4,
+        nextAnimation = 'Bomb',
+        frames = { 29, 30, 31 }
+    }).asDefault()
+    self:addState('Bomb', 1, 10, {
+        tickStep = animationSpeed / 2,
+        yoyo = true,
+        loop = false,
+        frames = { 30, 31, 30, 29, 30, 31, 30, 29, 30, 31 }
+    })
 
-    local x, y = getPositionAtCoordonate(i, j)
-    self:moveTo(x, y)
-    self:setZIndex(3)
     self:playAnimation()
     self:setGroups(collisionGroup)
     self:setCollideRect(0, 0, 16, 16)
 
     local bombCollisionGroups = {}
 
-    local _, _, collisions, _ = self:checkCollisions(x, y)
+    local _, _, collisions, _ = self:checkCollisions(self.x, self.y)
     for i = 1, #collisions, 1 do
         if (collisions[i].other == player1) then
             bombCollisionGroups[#bombCollisionGroups + 1] = collisionGroup.ignoreP1
@@ -49,7 +50,9 @@ function Bomb:init(i, j, power)
         end
     end
     bombCollisionGroups[#bombCollisionGroups + 1] = collisionGroup.bomb
+
     self:setGroups(bombCollisionGroups)
+
     self:setCollidesWithGroups({ collisionGroup.p1, collisionGroup.p2, collisionGroup.bomb, collisionGroup.item,
         collisionGroup.block })
 
@@ -58,8 +61,11 @@ function Bomb:init(i, j, power)
     end
 end
 
-function Bomb:explodeDirection(i, j, di, dj)
+function Bomb:push(direction)
+    self.velocity = direction;
+end
 
+function Bomb:explodeDirection(i, j, di, dj)
     local sprites = playdate.graphics.sprite.querySpritesAtPoint(getPositionAtCoordonate(i + di, j + dj))
 
     local needToCreateExplosion = true
@@ -71,23 +77,11 @@ function Bomb:explodeDirection(i, j, di, dj)
             if sprite ~= nil then
                 if sprite:isa(Item) then
                     sprite:remove()
-                    ItemExplode(i + di, j + dj, 3)
+                    world:addNewElement(ItemExplode, i + di, j + dj)
                     return true
                 end
 
                 if sprite:isa(BreakableBlock) then
-                    local caseUp = world.worldTable[i + di][j + dj - 1]
-                    local isShadow = false
-                    if caseUp:isa(BreakableBlock) or caseUp:isa(UnbreakableBlock) then
-                        isShadow = true
-                    end
-                    world.worldTable[i + di][j + dj] = Floor(i + di, j + dj, 0, isShadow)
-
-                    local caseDown = world.worldTable[i + di][j + dj + 1]
-                    if caseDown:isa(Floor) then
-                        caseDown:remove()
-                        world.worldTable[i + di][j + dj + 1] = Floor(i + di, j + dj + 1, 1, false)
-                    end
                     sprite:startBreak()
                     return true
                 end
@@ -110,6 +104,7 @@ function Bomb:explodeDirection(i, j, di, dj)
                     local state = sprite.currentState
                     sprite:stopAnimation()
                     sprite:changeState(state, true)
+                    sprite:changeState('explosionMiddle',true)
                 end
             end
         end
@@ -117,17 +112,17 @@ function Bomb:explodeDirection(i, j, di, dj)
 
     if needToCreateExplosion then
         if di == self.power then
-            explosion = Explosion(i + di, j + dj, 'explosionRight')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionRight')
         elseif di == -self.power then
-            explosion = Explosion(i + di, j + dj, 'explosionLeft')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionLeft')
         elseif dj == -self.power then
-            explosion = Explosion(i + di, j + dj, 'explosionUp')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionUp')
         elseif dj == self.power then
-            explosion = Explosion(i + di, j + dj, 'explosionDown')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionDown')
         elseif di > 0 or di < 0 then
-            explosion = Explosion(i + di, j + dj, 'explosionHorizontal')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionHorizontal')
         elseif dj > 0 or dj < 0 then
-            explosion = Explosion(i + di, j + dj, 'explosionVertical')
+            world:addNewElement(Explosion, i + di, j + dj, 'explosionVertical')
         end
     end
 
@@ -144,8 +139,7 @@ function Bomb:explode()
     screenShaker:start(0.8, 3, playdate.easingFunctions.inOutCubic)
 
     local i, j = getCoordonateAtPosition(self.x, self.y)
-    local explosion = Explosion(i, j, 'explosionMiddle')
-    -- explosion:add()
+    world:addNewElement(Explosion, i, j, 'explosionMiddle')
 
     for index = 1, self.power, 1 do
         if self:explodeDirection(i, j, index, 0) then
@@ -208,5 +202,8 @@ function Bomb:update()
     local oldX, oldY, _, _ = self:getPosition()
     local x, y, _, _ = self:moveWithCollisions(self.x + self.velocity.x * self.maxSpeed,
         self.y + self.velocity.y * self.maxSpeed)
+
+    local i, j = getCoordonateAtPosition(x, y)
+
     self.velocity = playdate.geometry.vector2D.new(x - oldX, y - oldY) / self.maxSpeed
 end

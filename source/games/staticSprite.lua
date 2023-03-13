@@ -1,27 +1,24 @@
-class('StaticSprite').extends(NobleSprite)
+class('ObjectMap').extends(AnimatedSprite)
 
-function StaticSprite:init(i, j, imageIndex, zIndex, hasCollider)
-    StaticSprite.super.init(self)
-
-    self:add()
-
-    local x, y = getPositionAtCoordonate(i, j)
-    self:moveTo(x, y)
-    local image = envImagetable:getImage(imageIndex)
-    self:setImage(image)
-    self:setZIndex(zIndex)
-
-    if hasCollider then
-        self:setCollideRect(0, 0, self:getSize())
-    end
+function ObjectMap:remove()
+    world:removeElement(self.i, self.j, self)
+    ObjectMap.super.remove(self)
 end
 
-class('EmptySprite').extends(playdate.graphics.sprite)
+function ObjectMap:setStaticImage(imageIndex)
+    local image = envImagetable:getImage(imageIndex)
+    self:setImage(image)
+end
 
-function EmptySprite:init(i, j)
+function ObjectMap:init(i, j, zIndex, hasCollider)
+    ObjectMap.super.init(self, envImagetable)
+    self:add()
+    self.i = i
+    self.j = j
     local x, y = getPositionAtCoordonate(i, j)
     self:moveTo(x, y)
-    self:setImage(image)
-    self:setZIndex(10)
-    self:setCollideRect(0, 0, 16, 16)
+    self:setZIndex(zIndex)
+    if hasCollider then
+        self:setCollideRect(0, 0, 16, 16)
+    end
 end
