@@ -104,7 +104,7 @@ function Bomb:explodeDirection(i, j, di, dj)
                     local state = sprite.currentState
                     sprite:stopAnimation()
                     sprite:changeState(state, true)
-                    sprite:changeState('explosionMiddle',true)
+                    sprite:changeState('explosionMiddle', true)
                 end
             end
         end
@@ -131,7 +131,6 @@ end
 
 function Bomb:explode()
     self:remove()
-
     self.isExploded = true
 
     self.bombExplode:play(1, 1)
@@ -139,6 +138,9 @@ function Bomb:explode()
     screenShaker:start(0.8, 3, playdate.easingFunctions.inOutCubic)
 
     local i, j = getCoordonateAtPosition(self.x, self.y)
+
+    invertedCircle:addBomb(self.power, i, j)
+
     world:addNewElement(Explosion, i, j, 'explosionMiddle')
 
     for index = 1, self.power, 1 do

@@ -1,6 +1,7 @@
 world = nil
 player1 = nil
 player2 = nil
+invertedCircle = nil
 
 class('World').extends(NobleScene)
 
@@ -83,6 +84,7 @@ function World:enter()
     world = self;
     player1 = Player(2, 2, P1)
     player2 = Player(14, 14, p2)
+    invertedCircle = InvertedCircle()
 
     playdate.graphics.setBackgroundColor(playdate.graphics.kColorBlack)
     math.randomseed(playdate.getSecondsSinceEpoch())
